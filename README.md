@@ -6,7 +6,7 @@ Uses the **v2 API** exclusively.
 ## Installation
 ### Via HACS (recommended)
 HACS → Integrations → "⋮" menu → "Custom repositories".
-Add this repository (patricknitsch/ha-pvnode) as a repository of type "Integration".
+Add this repository (darwindaume/ha-pvnode) as a repository of type "Integration".
 Install "pvnode" and restart Home Assistant.
 
 ### Manual

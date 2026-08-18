@@ -3,6 +3,17 @@
 Home Assistant integration for the PV forecast service [pvnode](https://pvnode.com).
 Uses the **v2 API** exclusively.
 
+## Installation
+### Via HACS (recommended)
+HACS → Integrations → "⋮" menu → "Custom repositories".
+Add this repository (darwindaume/ha-pvnode) as a repository of type "Integration".
+Install "pvnode" and restart Home Assistant.
+
+### Manual
+Copy the custom_components/pvnode folder into the custom_components directory of your Home Assistant configuration.
+Restart Home Assistant.
+Go to Settings → Devices & Services → Add Integration → "pvnode".
+
 ## Setup
 
 1. Create an API key in your pvnode account.

@@ -1,0 +1,168 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Gib den API-Schlüssel aus deinem pvnode-Konto ein.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        }
+      },
+      "site": {
+        "description": "Wähle die Anlage aus, die hinzugefügt werden soll.",
+        "data": {
+          "site_id": "Anlage"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Der pvnode-API-Schlüssel ist nicht mehr gültig. Bitte gib einen neuen ein.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        }
+      },
+      "reconfigure": {
+        "description": "API-Schlüssel für {site} ändern. Für eine andere Anlage lege einen weiteren pvnode-Eintrag an.",
+        "data": {
+          "api_key": "API-Schlüssel"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Der API-Schlüssel wurde abgelehnt.",
+      "cannot_connect": "Die pvnode-API ist nicht erreichbar.",
+      "no_access": "Dein Plan erlaubt das nicht. Prüfe dein pvnode-Abonnement.",
+      "no_sites": "Dieses Konto hat noch keine Anlagen. Lege zuerst eine auf pvnode.com an.",
+      "site_not_found": "Diese Anlage existiert im Konto nicht mehr.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Diese Anlage ist bereits eingerichtet.",
+      "reauth_successful": "Der API-Schlüssel wurde aktualisiert.",
+      "reconfigure_successful": "Die Konfiguration wurde aktualisiert."
+    }
+  },
+  "issues": {
+    "quota_exhausted": {
+      "title": "pvnode-Abrufkontingent aufgebraucht",
+      "description": "Das monatliche Abrufkontingent deines pvnode-Kontos ist aufgebraucht, die Prognose für {site} kann deshalb nicht mehr aktualisiert werden. Das Kontingent wird am {reset} zurückgesetzt. Ein Upgrade deines Plans erhöht es sofort."
+    }
+  },
+  "device": {
+    "string_device": {
+      "name": "{site} · {direction} {slope}° · {power} kWp"
+    },
+    "string_device_numbered": {
+      "name": "{site} · {direction} {slope}° · {power} kWp #{position}"
+    },
+    "string_device_fallback": {
+      "name": "{site} · Dachfläche {index}"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "power_now": {
+        "name": "Leistungsprognose aktuell"
+      },
+      "power_min_now": {
+        "name": "Leistungsprognose aktuell (min)"
+      },
+      "power_max_now": {
+        "name": "Leistungsprognose aktuell (max)"
+      },
+      "energy_min_today": {
+        "name": "Energieprognose heute (min)"
+      },
+      "energy_max_today": {
+        "name": "Energieprognose heute (max)"
+      },
+      "gti": {
+        "name": "Einstrahlung in Modulebene"
+      },
+      "gti_shaded": {
+        "name": "Einstrahlung in Modulebene nach Verschattung"
+      },
+      "power_next_30m": {
+        "name": "Leistungsprognose in 30 Minuten"
+      },
+      "power_next_1h": {
+        "name": "Leistungsprognose in 1 Stunde"
+      },
+      "peak_power_today": {
+        "name": "Spitzenleistung heute"
+      },
+      "peak_power_tomorrow": {
+        "name": "Spitzenleistung morgen"
+      },
+      "peak_time_today": {
+        "name": "Zeitpunkt der Spitzenleistung heute"
+      },
+      "peak_time_tomorrow": {
+        "name": "Zeitpunkt der Spitzenleistung morgen"
+      },
+      "power_clearsky_now": {
+        "name": "Clearsky-Leistung aktuell"
+      },
+      "energy_today": {
+        "name": "Energieprognose heute"
+      },
+      "energy_tomorrow": {
+        "name": "Energieprognose morgen"
+      },
+      "energy_day_offset": {
+        "name": "Energieprognose in {day} Tagen"
+      },
+      "energy_today_clearsky": {
+        "name": "Clearsky-Energie heute"
+      },
+      "energy_remaining_today": {
+        "name": "Restertrag heute"
+      },
+      "energy_current_hour": {
+        "name": "Energie diese Stunde"
+      },
+      "energy_next_hour": {
+        "name": "Energie nächste Stunde"
+      },
+      "temperature": {
+        "name": "Temperaturprognose"
+      },
+      "weather_code": {
+        "name": "Wettercode"
+      },
+      "wind_speed": {
+        "name": "Windgeschwindigkeit"
+      },
+      "relative_humidity": {
+        "name": "Relative Luftfeuchte"
+      },
+      "precipitation": {
+        "name": "Niederschlag"
+      },
+      "snow_water_equivalent": {
+        "name": "Schneewasseräquivalent"
+      },
+      "ghi": {
+        "name": "Globalstrahlung horizontal"
+      },
+      "dhi": {
+        "name": "Diffusstrahlung horizontal"
+      },
+      "bni": {
+        "name": "Direktstrahlung normal"
+      },
+      "last_updated": {
+        "name": "Prognose berechnet am"
+      },
+      "next_update": {
+        "name": "Nächste Prognose-Aktualisierung"
+      },
+      "requests_remaining": {
+        "name": "Verbleibende Abrufe (Konto)"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Prognose jetzt aktualisieren"
+      }
+    }
+  }
+}

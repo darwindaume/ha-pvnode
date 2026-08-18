@@ -1,0 +1,14 @@
+{
+  "domain": "pvnode",
+  "name": "pvnode - Solar Forecast",
+  "codeowners": [
+    "@darwindaume"
+  ],
+  "config_flow": true,
+  "documentation": "https://pvnode.com/docs/en/v2/integrations/home-assistant",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/darwindaume/ha-pvnode/issues",
+  "requirements": [],
+  "version": "0.2.0"
+}

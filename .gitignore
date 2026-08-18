@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# PyCharm
+.idea/
+
+# venv
+.venv/
+
+# Lokale Entwicklungswerkzeuge - maschinenspezifisch, gehoeren nicht ins Repo
+deploy.ps1
+run-tests.ps1
+Dockerfile.test
+.dockerignore
+TODO.md

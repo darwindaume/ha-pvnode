@@ -1,0 +1,168 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Enter the API key from your pvnode account.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "site": {
+        "description": "Choose the site to add.",
+        "data": {
+          "site_id": "Site"
+        }
+      },
+      "reauth_confirm": {
+        "description": "The pvnode API key is no longer valid. Enter a new one.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "reconfigure": {
+        "description": "Update the API key for {site}. To use a different site, add another pvnode entry.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The API key was rejected.",
+      "cannot_connect": "Could not reach the pvnode API.",
+      "no_access": "Your plan does not allow this. Check your pvnode subscription.",
+      "no_sites": "This account has no sites yet. Create one at pvnode.com first.",
+      "site_not_found": "This site no longer exists in the account.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This site is already set up.",
+      "reauth_successful": "The API key was updated.",
+      "reconfigure_successful": "The configuration was updated."
+    }
+  },
+  "issues": {
+    "quota_exhausted": {
+      "title": "pvnode request quota exhausted",
+      "description": "The monthly request quota for your pvnode account is used up, so the forecast for {site} can no longer be refreshed. The quota resets at {reset}. Upgrading your plan raises it immediately."
+    }
+  },
+  "device": {
+    "string_device": {
+      "name": "{site} · {direction} {slope}° · {power} kWp"
+    },
+    "string_device_numbered": {
+      "name": "{site} · {direction} {slope}° · {power} kWp #{position}"
+    },
+    "string_device_fallback": {
+      "name": "{site} · Array {index}"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "power_now": {
+        "name": "Power forecast now"
+      },
+      "power_min_now": {
+        "name": "Power forecast now (lower bound)"
+      },
+      "power_max_now": {
+        "name": "Power forecast now (upper bound)"
+      },
+      "energy_min_today": {
+        "name": "Energy today (lower bound)"
+      },
+      "energy_max_today": {
+        "name": "Energy today (upper bound)"
+      },
+      "gti": {
+        "name": "Tilted irradiance"
+      },
+      "gti_shaded": {
+        "name": "Tilted irradiance after shading"
+      },
+      "power_next_30m": {
+        "name": "Power forecast in 30 minutes"
+      },
+      "power_next_1h": {
+        "name": "Power forecast in 1 hour"
+      },
+      "peak_power_today": {
+        "name": "Peak power today"
+      },
+      "peak_power_tomorrow": {
+        "name": "Peak power tomorrow"
+      },
+      "peak_time_today": {
+        "name": "Peak time today"
+      },
+      "peak_time_tomorrow": {
+        "name": "Peak time tomorrow"
+      },
+      "power_clearsky_now": {
+        "name": "Clear-sky power now"
+      },
+      "energy_today": {
+        "name": "Energy forecast today"
+      },
+      "energy_tomorrow": {
+        "name": "Energy forecast tomorrow"
+      },
+      "energy_day_offset": {
+        "name": "Energy forecast in {day} days"
+      },
+      "energy_today_clearsky": {
+        "name": "Clear-sky energy today"
+      },
+      "energy_remaining_today": {
+        "name": "Energy remaining today"
+      },
+      "energy_current_hour": {
+        "name": "Energy this hour"
+      },
+      "energy_next_hour": {
+        "name": "Energy next hour"
+      },
+      "temperature": {
+        "name": "Temperature forecast"
+      },
+      "weather_code": {
+        "name": "Weather code"
+      },
+      "wind_speed": {
+        "name": "Wind speed"
+      },
+      "relative_humidity": {
+        "name": "Relative humidity"
+      },
+      "precipitation": {
+        "name": "Precipitation"
+      },
+      "snow_water_equivalent": {
+        "name": "Snow water equivalent"
+      },
+      "ghi": {
+        "name": "Global horizontal irradiance"
+      },
+      "dhi": {
+        "name": "Diffuse horizontal irradiance"
+      },
+      "bni": {
+        "name": "Beam normal irradiance"
+      },
+      "last_updated": {
+        "name": "Forecast computed at"
+      },
+      "next_update": {
+        "name": "Next forecast update"
+      },
+      "requests_remaining": {
+        "name": "Account requests remaining"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Refresh forecast now"
+      }
+    }
+  }
+}

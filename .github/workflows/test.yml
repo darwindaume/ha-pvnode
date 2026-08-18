@@ -15,6 +15,9 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
+          # The dependency file is not named requirements.txt, so the cache key
+          # has to be pointed at it explicitly.
+          cache-dependency-path: requirements_test.txt
 
       - name: Install test dependencies
         run: pip install -r requirements_test.txt

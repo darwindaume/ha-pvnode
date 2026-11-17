@@ -2,12 +2,37 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER
 from .coordinator import PvnodeConfigEntry, PvnodeDataUpdateCoordinator
 from .strings_meta import string_model
+
+# Home Assistant 2026.8 added `via_device_id` to `DeviceInfo` and deprecated the
+# identifier-based `via_device` (removed in 2027.8). Older releases pass every
+# `DeviceInfo` key straight to `async_get_or_create`, which rejects the new key, so the
+# old form is kept for them.
+_HAS_VIA_DEVICE_ID = "via_device_id" in getattr(DeviceInfo, "__optional_keys__", ())
+
+
+def site_device_fields(entry: PvnodeConfigEntry) -> dict[str, Any]:
+    """Describe the site device.
+
+    Shared by the site entities' `DeviceInfo` and the explicit registration in
+    `async_setup_entry`, which must exist before any roof surface links to it.
+    """
+    return {
+        "entry_type": DeviceEntryType.SERVICE,
+        "identifiers": {(DOMAIN, entry.entry_id)},
+        "name": entry.title,
+        "manufacturer": MANUFACTURER,
+        "model": "pvnode API v2",
+        "configuration_url": "https://pvnode.com",
+    }
 
 
 class PvnodeSiteEntity(CoordinatorEntity[PvnodeDataUpdateCoordinator]):
@@ -28,14 +53,7 @@ class PvnodeSiteEntity(CoordinatorEntity[PvnodeDataUpdateCoordinator]):
         super().__init__(coordinator)
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_{key}"
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=entry.title,
-            manufacturer=MANUFACTURER,
-            model="pvnode API v2",
-            configuration_url="https://pvnode.com",
-        )
+        self._attr_device_info = DeviceInfo(**site_device_fields(entry))
 
 
 class PvnodeStringEntity(CoordinatorEntity[PvnodeDataUpdateCoordinator]):
@@ -77,14 +95,22 @@ class PvnodeStringEntity(CoordinatorEntity[PvnodeDataUpdateCoordinator]):
                 "index": str(string_index + 1),
             }
 
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{entry.entry_id}_string{string_index}")},
-            translation_key=translation_key,
-            translation_placeholders=translation_placeholders,
-            manufacturer=MANUFACTURER,
-            model=string_model(placeholders),
-            via_device=(DOMAIN, entry.entry_id),
-        )
+        device_fields: dict[str, Any] = {
+            "identifiers": {(DOMAIN, f"{entry.entry_id}_string{string_index}")},
+            "translation_key": translation_key,
+            "translation_placeholders": translation_placeholders,
+            "manufacturer": MANUFACTURER,
+            "model": string_model(placeholders),
+        }
+        if not _HAS_VIA_DEVICE_ID:
+            device_fields["via_device"] = (DOMAIN, entry.entry_id)
+        elif site := dr.async_get(coordinator.hass).async_get_device(
+            identifiers={(DOMAIN, entry.entry_id)}
+        ):
+            # The site device is registered in `async_setup_entry`, before any platform
+            # is forwarded, so it is always found here.
+            device_fields["via_device_id"] = site.id
+        self._attr_device_info = DeviceInfo(**device_fields)
 
     @property
     def _series(self) -> dict:

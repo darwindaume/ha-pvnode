@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.loader import async_get_integration
 
 from .const import DOMAIN, PLATFORMS
 from .coordinator import PvnodeConfigEntry, PvnodeDataUpdateCoordinator
+from .entity import site_device_fields
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: PvnodeConfigEntry) -> bool:
@@ -21,6 +23,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: PvnodeConfigEntry) -> bo
 
     entry.runtime_data = coordinator
     entry.async_on_unload(coordinator.async_start_local_refresh())
+
+    # Register the site device before the platforms: roof-surface devices link to it by
+    # device id (`via_device_id`), which must already exist when they are created.
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id, **site_device_fields(entry)
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True

@@ -28,8 +28,11 @@ computation is available, and survives a restart without a single extra request.
 > refresh — no reload needed. The band sensors appear after the first forecast update, not
 > immediately after setup.
 
-If you don't want to wait, press **"Refresh forecast now"** on the pvnode device. The
-button fetches a new forecast straight away. Home Assistant's own *Reload* does not help
+If you don't want to wait, press **"Fetch latest forecast"** on the pvnode device. The
+button is disabled by default; enable it under the device's entities first. The
+button fetches the latest forecast the server has; it does not trigger a new computation.
+When a new one becomes available is shown by **"New forecast available from"**. Home
+Assistant's own *Reload* does not help
 here: it falls back to the stored forecast and deliberately avoids a request while that
 one is still current.
 

@@ -11,8 +11,14 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from custom_components.pvnode.api import ForecastResult, RequestLimit
+from custom_components.pvnode.const import DOMAIN
 
-from .conftest import load_forecast, setup_integration, with_variability
+from .conftest import (
+    load_forecast,
+    setup_integration,
+    with_variability,
+    without_irradiance,
+)
 
 TZ = ZoneInfo("Europe/Berlin")
 
@@ -226,3 +232,45 @@ async def test_a_longer_horizon_adds_day_sensors_without_a_reload(
     await hass.async_block_till_done()
 
     assert _entity_id(hass, config_entry.entry_id, "energy_day1")
+
+
+def _enable(hass: HomeAssistant, config_entry, *keys: str) -> None:
+    """Pre-register disabled-by-default sensors as enabled so they get a state."""
+    config_entry.add_to_hass(hass)
+    registry = er.async_get(hass)
+    for key in keys:
+        registry.async_get_or_create(
+            "sensor",
+            DOMAIN,
+            f"{config_entry.entry_id}_{key}",
+            config_entry=config_entry,
+        )
+
+
+async def test_irradiance_sensors_are_unavailable_without_the_plan(
+    hass: HomeAssistant, mock_api, config_entry
+) -> None:
+    """pvnode sends 0 then; showing that would be indistinguishable from night."""
+    _enable(hass, config_entry, "ghi", "string0_gti")
+    mock_api.async_get_forecast = AsyncMock(
+        return_value=ForecastResult(
+            payload=without_irradiance(load_forecast()), request_limit=RequestLimit()
+        )
+    )
+    await setup_integration(hass, config_entry)
+
+    assert _state(hass, config_entry.entry_id, "ghi").state == "unavailable"
+    assert _state(hass, config_entry.entry_id, "string0_gti").state == "unavailable"
+    # Everything else is unaffected.
+    assert _state(hass, config_entry.entry_id, "energy_day0").state != "unavailable"
+
+
+async def test_irradiance_sensors_report_values_with_the_plan(
+    hass: HomeAssistant, mock_api, config_entry
+) -> None:
+    """With irradiance in `available` the sensors are regular sensors."""
+    _enable(hass, config_entry, "ghi", "string0_gti")
+    await setup_integration(hass, config_entry)
+
+    assert _state(hass, config_entry.entry_id, "ghi").state != "unavailable"
+    assert _state(hass, config_entry.entry_id, "string0_gti").state != "unavailable"

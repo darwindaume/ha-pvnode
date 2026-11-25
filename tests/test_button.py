@@ -8,6 +8,8 @@ from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.pvnode.const import DOMAIN
+
 from .conftest import setup_integration
 
 
@@ -20,10 +22,24 @@ def _button(hass: HomeAssistant, entry_id: str) -> str:
     raise AssertionError("refresh button missing")
 
 
+async def test_button_is_disabled_by_default(
+    hass: HomeAssistant, mock_api, config_entry
+) -> None:
+    """It is easily mistaken for "recompute now", so users opt in."""
+    await setup_integration(hass, config_entry)
+
+    entry = er.async_get(hass).async_get(_button(hass, config_entry.entry_id))
+    assert entry.disabled_by is er.RegistryEntryDisabler.INTEGRATION
+
+
 async def test_pressing_the_button_fetches(
     hass: HomeAssistant, mock_api, config_entry
 ) -> None:
     """Waiting out the slot is not an option right after a plan change."""
+    config_entry.add_to_hass(hass)
+    er.async_get(hass).async_get_or_create(
+        "button", DOMAIN, f"{config_entry.entry_id}_refresh", config_entry=config_entry
+    )
     await setup_integration(hass, config_entry)
     before = mock_api.async_get_forecast.call_count
 

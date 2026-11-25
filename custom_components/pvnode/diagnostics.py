@@ -33,6 +33,7 @@ async def async_get_config_entry_diagnostics(
                 else None
             ),
             "variability_requested": coordinator.variability_requested,
+            "irradiance_requested": coordinator.irradiance_requested,
             "known_string_indexes": sorted(coordinator.known_string_indexes),
         },
     }

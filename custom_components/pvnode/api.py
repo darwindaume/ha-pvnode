@@ -206,7 +206,7 @@ class PvnodeApiClient:
         return data
 
     async def async_get_forecast(
-        self, site_id: str, *, variability: bool = False
+        self, site_id: str, *, variability: bool = False, irradiance: bool = True
     ) -> ForecastResult:
         """Fetch the full forecast for a site.
 
@@ -215,10 +215,13 @@ class PvnodeApiClient:
         the naive site-local default would have to be localized here, which is exactly
         where DST bugs live.
         """
-        # Everything except the variability band, which is plan-gated and would turn a
-        # missing entitlement into a hard 403. The extra groups only widen the response;
-        # they cost no additional request.
-        include = ["default", "clearsky", "weather", "irradiance", "strings"]
+        # Both plan-gated groups are only asked for when the plan allows them. A missing
+        # variability entitlement is a hard 403; missing irradiance is not an error —
+        # pvnode then returns ghi/dhi/bni/gti/gti_shaded as 0, which is why the sensors
+        # go by `available` rather than by these values.
+        include = ["default", "clearsky", "weather", "strings"]
+        if irradiance:
+            include.append("irradiance")
         if variability:
             include.append("variability")
 

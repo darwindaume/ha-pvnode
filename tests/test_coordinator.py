@@ -24,7 +24,12 @@ from custom_components.pvnode.const import (
     STORAGE_VERSION,
 )
 
-from .conftest import load_forecast, setup_integration, with_variability
+from .conftest import (
+    load_forecast,
+    setup_integration,
+    with_variability,
+    without_irradiance,
+)
 
 
 def _in(minutes: int) -> str:
@@ -223,3 +228,38 @@ async def test_site_metadata_is_fetched_only_when_the_strings_change(
 
     await config_entry.runtime_data.async_refresh()
     assert mock_api.async_get_site.call_count == 1
+
+
+async def test_irradiance_is_requested_until_the_plan_says_otherwise(
+    hass: HomeAssistant, mock_api, config_entry
+) -> None:
+    """Probing is free (zeroed, not billed), so a fresh entry asks right away."""
+    mock_api.async_get_forecast.return_value = _result(
+        without_irradiance(load_forecast(next_poll_at=_in(15)))
+    )
+    await setup_integration(hass, config_entry)
+    assert mock_api.async_get_forecast.call_args.kwargs["irradiance"] is True
+
+    coordinator = config_entry.runtime_data
+    assert coordinator.irradiance_requested is False
+    await coordinator.async_refresh()
+    assert mock_api.async_get_forecast.call_args.kwargs["irradiance"] is False
+
+
+async def test_irradiance_is_requested_again_after_an_upgrade(
+    hass: HomeAssistant, mock_api, config_entry
+) -> None:
+    """`available` lists irradiance again, so the next fetch asks for it."""
+    mock_api.async_get_forecast.return_value = _result(
+        without_irradiance(load_forecast(next_poll_at=_in(15)))
+    )
+    await setup_integration(hass, config_entry)
+    coordinator = config_entry.runtime_data
+
+    mock_api.async_get_forecast.return_value = _result(
+        load_forecast(next_poll_at=_in(15))
+    )
+    await coordinator.async_refresh()
+    assert coordinator.irradiance_requested is True
+    await coordinator.async_refresh()
+    assert mock_api.async_get_forecast.call_args.kwargs["irradiance"] is True

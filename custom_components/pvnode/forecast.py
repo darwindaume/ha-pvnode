@@ -79,6 +79,16 @@ class PvnodeData:
         return "variability" in self.available
 
     @property
+    def supports_irradiance(self) -> bool:
+        """True when the plan includes irradiance.
+
+        Without it pvnode still sends the irradiance fields (and `gti` on every string
+        row, since `strings` carries it), but as 0. `available` of the same response is
+        the only way to tell that from a dark sky.
+        """
+        return "irradiance" in self.available
+
+    @property
     def tz(self) -> tzinfo:
         """The site's timezone."""
         return safe_timezone(self.site_timezone)

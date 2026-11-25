@@ -153,7 +153,7 @@
         "name": "Prognose berechnet am"
       },
       "next_update": {
-        "name": "Nächste Prognose-Aktualisierung"
+        "name": "Neue Prognose verfügbar ab"
       },
       "requests_remaining": {
         "name": "Verbleibende Abrufe (Konto)"
@@ -161,7 +161,7 @@
     },
     "button": {
       "refresh": {
-        "name": "Prognose jetzt aktualisieren"
+        "name": "Neueste Prognose abrufen"
       }
     }
   }

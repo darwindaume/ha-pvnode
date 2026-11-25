@@ -153,7 +153,7 @@
         "name": "Forecast computed at"
       },
       "next_update": {
-        "name": "Next forecast update"
+        "name": "New forecast available from"
       },
       "requests_remaining": {
         "name": "Account requests remaining"
@@ -161,7 +161,7 @@
     },
     "button": {
       "refresh": {
-        "name": "Refresh forecast now"
+        "name": "Fetch latest forecast"
       }
     }
   }

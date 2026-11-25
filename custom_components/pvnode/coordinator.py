@@ -84,6 +84,9 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
         # so both an upgrade and a downgrade are picked up on the next refresh without
         # any user action. None on a fresh install, where nothing is known yet.
         self._variability: bool | None = None
+        # Same idea for irradiance, but unknown means "ask": a plan without it only gets
+        # zeroed fields back (no error, not billed), so probing costs nothing.
+        self._irradiance: bool | None = None
         self._string_names: dict[int, dict[str, str]] = {}
         self._string_names_for: set[int] = set()
         self.known_string_indexes: set[int] = set()
@@ -101,6 +104,11 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
     def variability_requested(self) -> bool | None:
         """Whether the next fetch will ask for the band; None until it is known."""
         return self._variability
+
+    @property
+    def irradiance_requested(self) -> bool:
+        """Whether the next fetch will ask for irradiance."""
+        return self._irradiance is not False
 
     # -- dynamic strings ---------------------------------------------------
 
@@ -158,6 +166,7 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
         # Safe to take from the store: `available` records the plan's entitlement, not
         # what happened to be requested, so a restored payload carries the real answer.
         self._variability = data.supports_variability
+        self._irradiance = data.supports_irradiance
         self.known_string_indexes = set(data.strings)
         self._apply_cadence(data)
         self.async_set_updated_data(data)
@@ -248,8 +257,11 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
         is that a fresh install learns about the band one refresh late.
         """
         want = bool(self._variability)
+        irradiance = self.irradiance_requested
         try:
-            result = await self.api.async_get_forecast(self.site_id, variability=want)
+            result = await self.api.async_get_forecast(
+                self.site_id, variability=want, irradiance=irradiance
+            )
         except PvnodeVariabilityUnavailable:
             # `available` is by definition one response old. A plan downgrade landing
             # between two refreshes would otherwise fail the whole update, so this stays
@@ -259,11 +271,14 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
                 self.site_id,
             )
             self._variability = False
-            result = await self.api.async_get_forecast(self.site_id, variability=False)
+            result = await self.api.async_get_forecast(
+                self.site_id, variability=False, irradiance=irradiance
+            )
 
         available = result.payload.get("available")
         if available is not None:
             self._variability = "variability" in available
+            self._irradiance = "irradiance" in available
         elif self._variability is None:
             # An API that predates `available` gives nothing to decide on. Ask for the
             # band next time and let the 403 answer, rather than silently never
@@ -332,12 +347,13 @@ class PvnodeDataUpdateCoordinator(DataUpdateCoordinator[PvnodeData]):
 
         _LOGGER.debug(
             "pvnode %s: %d timesteps, %d days, %d strings, variability=%s, "
-            "computed_at=%s, next_poll_at=%s, next poll in %s",
+            "irradiance=%s, computed_at=%s, next_poll_at=%s, next poll in %s",
             self.site_id,
             len(data.values),
             len(data.daily),
             len(data.strings),
             data.has_variability,
+            data.supports_irradiance,
             data.computed_at,
             data.next_poll_at,
             self.update_interval,

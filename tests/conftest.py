@@ -112,6 +112,21 @@ def with_variability(payload: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def without_irradiance(payload: dict[str, Any]) -> dict[str, Any]:
+    """Strip irradiance from a payload the way pvnode does for a plan without it.
+
+    The fields stay in the rows but are zeroed; only `available` tells the difference.
+    """
+    payload = json.loads(json.dumps(payload))
+    payload["included"] = [g for g in payload["included"] if g != "irradiance"]
+    payload["available"] = [g for g in payload["available"] if g != "irradiance"]
+    for row in (*payload["values"], *(payload.get("strings") or [])):
+        for key in ("ghi", "dhi", "bni", "gti", "gti_shaded"):
+            if key in row:
+                row[key] = 0
+    return payload
+
+
 SITE = {
     "id": SITE_ID,
     "name": "Testanlage",

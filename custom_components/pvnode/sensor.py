@@ -57,6 +57,8 @@ class PvnodeSensorDescription(SensorEntityDescription):
     series_key: str | None = None
     series_name: str = "value"
     attributes: Callable[[PvnodeData], dict[str, Any]] | None = None
+    # Unavailable unless the plan includes irradiance; pvnode sends 0 otherwise.
+    requires_irradiance: bool = False
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -66,6 +68,7 @@ class PvnodeStringSensorDescription(SensorEntityDescription):
     value: Callable[[dict[datetime, dict[str, Any]], PvnodeData], StateType | datetime]
     series_key: str | None = None
     series_name: str = "value"
+    requires_irradiance: bool = False
 
 
 def _as_int(value: float | None) -> int | None:
@@ -290,6 +293,7 @@ WEATHER_SENSORS: tuple[PvnodeSensorDescription, ...] = (
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
         value=lambda d: value_now(d.values, "ghi"),
+        requires_irradiance=True,
     ),
     PvnodeSensorDescription(
         key="dhi",
@@ -300,6 +304,7 @@ WEATHER_SENSORS: tuple[PvnodeSensorDescription, ...] = (
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
         value=lambda d: value_now(d.values, "dhi"),
+        requires_irradiance=True,
     ),
     PvnodeSensorDescription(
         key="bni",
@@ -310,6 +315,7 @@ WEATHER_SENSORS: tuple[PvnodeSensorDescription, ...] = (
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
         value=lambda d: value_now(d.values, "bni"),
+        requires_irradiance=True,
     ),
 )
 
@@ -420,6 +426,7 @@ STRING_SENSORS: tuple[PvnodeStringSensorDescription, ...] = (
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
         value=lambda series, data: value_now(series, "gti"),
+        requires_irradiance=True,
     ),
     PvnodeStringSensorDescription(
         key="gti_shaded",
@@ -430,6 +437,7 @@ STRING_SENSORS: tuple[PvnodeStringSensorDescription, ...] = (
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
         value=lambda series, data: value_now(series, "gti_shaded"),
+        requires_irradiance=True,
     ),
 )
 
@@ -574,6 +582,14 @@ def _remove_band_entities(hass: HomeAssistant, entry: PvnodeConfigEntry) -> None
             registry.async_remove(entity.entity_id)
 
 
+def _entitled(entity: PvnodeSiteSensor | PvnodeStringSensor) -> bool:
+    """False when the sensor needs irradiance and the plan does not include it."""
+    if not entity.entity_description.requires_irradiance:
+        return True
+    data = entity.coordinator.data
+    return bool(data and data.supports_irradiance)
+
+
 class PvnodeSiteSensor(PvnodeSiteEntity, SensorEntity):
     """A site-level sensor described by a `PvnodeSensorDescription`."""
 
@@ -591,6 +607,11 @@ class PvnodeSiteSensor(PvnodeSiteEntity, SensorEntity):
         """Initialize from the description."""
         super().__init__(coordinator, entry, description.key)
         self.entity_description = description
+
+    @property
+    def available(self) -> bool:
+        """Unavailable rather than 0 when the plan lacks the data."""
+        return super().available and _entitled(self)
 
     @property
     def native_value(self) -> StateType | datetime:
@@ -685,6 +706,11 @@ class PvnodeStringSensor(PvnodeStringEntity, SensorEntity):
         """Initialize from the description."""
         super().__init__(coordinator, entry, string_index, description.key)
         self.entity_description = description
+
+    @property
+    def available(self) -> bool:
+        """Unavailable rather than 0 when the plan lacks the data."""
+        return super().available and _entitled(self)
 
     @property
     def native_value(self) -> StateType | datetime:

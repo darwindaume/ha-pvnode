@@ -33,6 +33,9 @@ class PvnodeRefreshButton(PvnodeSiteEntity, ButtonEntity):
     """
 
     _attr_entity_category = EntityCategory.CONFIG
+    # Users read the button as "recompute now" and burn quota on cached answers. It is
+    # only really needed after a plan change, so it stays hidden until enabled.
+    _attr_entity_registry_enabled_default = False
     _attr_translation_key = "refresh"
 
     def __init__(
